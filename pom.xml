@@ -37,7 +37,7 @@
 
     <properties>
         <project.build.targetJdk>22</project.build.targetJdk>
-        <air.java.version>22.0.1</air.java.version>
+        <air.java.version>22.0.0</air.java.version>
 
         <air.check.skip-extended>true</air.check.skip-extended>
         <air.check.skip-license>false</air.check.skip-license>
@@ -64,6 +64,7 @@
         <dep.slf4j.version>2.0.13</dep.slf4j.version>
         <dep.assertj-core.version>3.26.0</dep.assertj-core.version>
         <dep.logback.version>1.5.6</dep.logback.version>
+        <dep.okio.version>3.9.0</dep.okio.version>
         <dep.plugin.surefire.version>3.2.5</dep.plugin.surefire.version>
         <dep.jna.version>5.14.0</dep.jna.version>
 
@@ -73,11 +74,28 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-bom</artifactId>
+                <version>1.64.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-bom</artifactId>
                 <version>2.0.0</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.squareup.okio</groupId>
+                <artifactId>okio</artifactId>
+                <version>${dep.okio.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.squareup.okio</groupId>
+                <artifactId>okio-jvm</artifactId>
+                <version>${dep.okio.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-codec</groupId>
@@ -203,8 +221,14 @@
 
         <dependency>
             <groupId>io.trino</groupId>
-            <artifactId>trino-hdfs</artifactId>
+            <artifactId>trino-filesystem-manager</artifactId>
             <version>${dep.trino.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>net.java.dev.jna</groupId>
+                    <artifactId>jna</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -464,6 +488,77 @@
                                     <resource>mozilla/public-suffix-list.txt</resource>
                                 </resources>
                             </exception>
+                            <exception>
+                                <conflictingDependencies>
+                                    <dependency>
+                                        <groupId>com.google.api</groupId>
+                                        <artifactId>gax</artifactId>
+                                    </dependency>
+                                    <dependency>
+                                        <groupId>com.google.cloud.bigdataoss</groupId>
+                                        <artifactId>gcs-connector</artifactId>
+                                    </dependency>
+                                </conflictingDependencies>
+                                <resources>
+                                    <resource>dependencies.properties</resource>
+                                </resources>
+                            </exception>
+                            <exception>
+                                <conflictingDependencies>
+                                    <dependency>
+                                        <groupId>com.amazonaws</groupId>
+                                        <artifactId>aws-java-sdk-s3</artifactId>
+                                    </dependency>
+                                    <dependency>
+                                        <groupId>software.amazon.awssdk</groupId>
+                                        <artifactId>sdk-core</artifactId>
+                                    </dependency>
+                                </conflictingDependencies>
+                                <resources>
+                                    <resource>mime.types</resource>
+                                </resources>
+                            </exception>
+                            <exception>
+                                <conflictingDependencies>
+                                    <dependency>
+                                        <groupId>org.alluxio</groupId>
+                                        <artifactId>alluxio-core-client-fs</artifactId>
+                                    </dependency>
+                                    <dependency>
+                                        <groupId>org.alluxio</groupId>
+                                        <artifactId>alluxio-core-common</artifactId>
+                                    </dependency>
+                                    <dependency>
+                                        <groupId>org.alluxio</groupId>
+                                        <artifactId>alluxio-core-transport</artifactId>
+                                    </dependency>
+                                </conflictingDependencies>
+                                <resources>
+                                    <resource>git.properties</resource>
+                                </resources>
+                            </exception>
+                            <exception>
+                                <conflictingDependencies>
+                                    <dependency>
+                                        <groupId>com.google.cloud.bigdataoss</groupId>
+                                        <artifactId>gcs-connector</artifactId>
+                                    </dependency>
+                                    <dependency>
+                                        <groupId>io.opencensus</groupId>
+                                        <artifactId>opencensus-proto</artifactId>
+                                    </dependency>
+                                </conflictingDependencies>
+                                <resources>
+                                    <resource>opencensus/proto/agent/common/v1/common.proto</resource>
+                                    <resource>opencensus/proto/agent/metrics/v1/metrics_service.proto</resource>
+                                    <resource>opencensus/proto/agent/trace/v1/trace_service.proto</resource>
+                                    <resource>opencensus/proto/metrics/v1/metrics.proto</resource>
+                                    <resource>opencensus/proto/resource/v1/resource.proto</resource>
+                                    <resource>opencensus/proto/stats/v1/stats.proto</resource>
+                                    <resource>opencensus/proto/trace/v1/trace.proto</resource>
+                                    <resource>opencensus/proto/trace/v1/trace_config.proto</resource>
+                                </resources>
+                            </exception>
                         </exceptions>
                     </configuration>
                 </plugin>
@@ -541,6 +636,22 @@
                             <excludes combine.children="append">
                                 <!-- TODO: fix this in Airlift resolver -->
                                 <exclude>org.codehaus.plexus:plexus-utils</exclude>
+                                <exclude>com.google.guava:guava</exclude>
+                                <exclude>com.fasterxml.jackson.core:jackson-core</exclude>
+                                <exclude>com.google.j2objc:j2objc-annotations</exclude>
+                                <exclude>com.google.code.gson:gson</exclude>
+                                <exclude>com.google.http-client:google-http-client-gson</exclude>
+                                <exclude>com.google.protobuf:protobuf-java</exclude>
+                                <exclude>com.squareup.okhttp3:okhttp</exclude>
+                                <exclude>io.netty:netty-buffer</exclude>
+                                <exclude>io.netty:netty-codec</exclude>
+                                <exclude>io.netty:netty-codec-http</exclude>
+                                <exclude>io.netty:netty-codec-http2</exclude>
+                                <exclude>io.netty:netty-common</exclude>
+                                <exclude>io.netty:netty-handler</exclude>
+                                <exclude>io.netty:netty-resolver</exclude>
+                                <exclude>io.netty:netty-transport</exclude>
+                                <exclude>io.netty:netty-transport-classes-epoll</exclude>
                             </excludes>
                         </requireUpperBoundDeps>
                     </rules>

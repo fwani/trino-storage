@@ -21,9 +21,6 @@ import com.google.inject.Module;
 import com.google.inject.Scopes;
 import io.airlift.http.client.HttpClientConfig;
 import io.opentelemetry.api.OpenTelemetry;
-import io.trino.filesystem.TrinoFileSystemFactory;
-import io.trino.filesystem.hdfs.HdfsFileSystemFactory;
-import io.trino.hdfs.TrinoHdfsFileSystemStats;
 import io.trino.spi.function.table.ConnectorTableFunction;
 import io.trino.spi.type.Type;
 import io.trino.spi.type.TypeManager;
@@ -62,8 +59,6 @@ public class StorageModule
         binder.bind(StoragePageSourceProvider.class).in(Scopes.SINGLETON);
         newSetBinder(binder, ConnectorTableFunction.class).addBinding().toProvider(ReadFileTableFunction.class).in(Scopes.SINGLETON);
         newSetBinder(binder, ConnectorTableFunction.class).addBinding().toProvider(ListTableFunction.class).in(Scopes.SINGLETON);
-        binder.bind(TrinoFileSystemFactory.class).to(HdfsFileSystemFactory.class).in(Scopes.SINGLETON);
-        binder.bind(TrinoHdfsFileSystemStats.class).in(Scopes.SINGLETON);
         binder.bind(OpenTelemetry.class).toInstance(OpenTelemetry.noop());
         configBinder(binder).bindConfig(StorageConfig.class);
 
